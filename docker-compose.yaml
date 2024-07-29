@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  hdfs-client:
+    build:
+      context: .
+      dockerfile: dockerfile
+    user: unibo
+    volumes:
+      - hadoop_config:/opt/hadoop/etc/hadoop/
+    command: ["tail", "-f", "/dev/null"]
+    stdin_open: true
+    tty: true
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+          - node.hostname != CB-Mass-Node1
+    networks:
+      - BIG-dataplatform-network
+
+volumes:
+  hadoop_config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.30.249,rw,nfsvers=4,nolock,hard
+      device: ":/nfsshare/dataplatform_config/hadoop_conf/"
+
+networks:
+  BIG-dataplatform-network:
+    external: true
